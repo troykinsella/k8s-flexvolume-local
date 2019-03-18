@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+
+set -e
+
+if ! command -v jq >/dev/null 2>&1; then
+  err "{ \"status\": \"Failure\", \"message\": \"'jq' binary not found. Please install jq package before using this driver\"}"
+  exit 1
+fi
+
+usage() {
+  echo "Invalid usage. Usage: " >&2
+  echo "\t$0 init" >&2
+  echo "\t$0 mount <mount dir> <json params>" >&2
+  echo "\t$0 unmount <mount dir>" >&2
+  exit 1
+}
+
+domount() {
+  local mount_path="$1"
+  local config="$2"
+
+  mkdir -p $mount_path
+  echo '{"status": "Success"}'
+}
+
+unmount() {
+  echo '{"status": "Success"}'
+}
+
+op=$1
+
+if [ "$op" = "init" ]; then
+  echo '{"status": "Success", "capabilities": {"attach": false}}'
+  exit 0
+fi
+
+if [ $# -lt 2 ]; then
+  usage
+fi
+
+shift
+
+case "$op" in
+  mount)
+    domount $*
+    ;;
+  unmount)
+    unmount $*
+    ;;
+  *)
+    echo '{"status": "Not supported"}'
+	exit 0
+esac
+
+exit 1
